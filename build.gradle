@@ -1,0 +1,68 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'org.openapi.generator' version '5.2.1'
+}
+
+task generateCitibank(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    generatorName = "java"
+    inputSpec = "src/main/resources/citibank-api-docs.yaml".toString()
+    outputDir = "$rootDir/generated/openapi/citibank".toString()
+    ignoreFileOverride = file(".openapi-generator-java-sources.ignore").toString()
+    apiPackage = "shaprj.mockito.generated.openapi.api"
+    invokerPackage = "shaprj.mockito.generated.openapi.invoker"
+    modelPackage = "shaprj.mockito.generated.openapi.model"
+    configOptions = [
+            dateLibrary         : "java11",
+//            serializationLibrary: "jackson",
+//            library             : "jersey1"
+    ]
+}
+
+task generateAllBanks(dependsOn: ['generateCitibank'])
+
+sourceSets {
+    main {
+        java {
+            srcDir("generated/openapi/citibank/src/main/java")
+        }
+    }
+}
+
+group = 'shaprj.mockito'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo1.maven.org/maven2" }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    implementation 'org.openapitools:openapi-generator-gradle-plugin:5.2.1'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.8'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.2'
+    implementation group: 'com.squareup.okhttp3', name: 'logging-interceptor', version: '4.9.2'
+    implementation group: 'io.gsonfire', name: 'gson-fire', version: '1.8.5'
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:3.+'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
+}
+
+test {
+    useJUnitPlatform()
+}
